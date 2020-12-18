@@ -8800,3 +8800,10 @@ input, select, textarea {
 			#wrapper.divided > .invert:first-child {
 				box-shadow: none !important;
 			}
+
+
+.page-main {
+	position: relative;
+	/* margin-left: 230px; */
+	margin-top: 60px;
+}

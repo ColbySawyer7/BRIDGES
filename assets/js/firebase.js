@@ -133,16 +133,16 @@ var file;
 var fileName;
 var storageRef = storage.ref().child;
 var userFileLabel = document.getElementById("user-file-label");
-
+/*
 $("#file-select").change(function(e){
-    //Get File after change
-    file = e.target.files[0];
-    fileName = file.name;
-    console.log("FILE: " + fileName); 
-    //Display File Name
-    userFileLabel.textContent = "Selected: " + fileName;
-    //Create Storage Ref
-    storageRef = firebase.storage().ref('main/' + file.name);
+  //Get File after change
+  file = e.target.files[0];
+  fileName = file.name;
+  console.log("FILE: " + fileName); 
+  //Display File Name
+  userFileLabel.textContent = "Selected: " + fileName;
+  //Create Storage Ref
+  storageRef = firebase.storage().ref('main/' + file.name);
 });
 
 $("#file-submit").click(function(e){   
@@ -176,8 +176,122 @@ $("#file-submit").click(function(e){
       });
     });
 });
+*/
 
+$("#btnStartUpload").click(function(e){
+  //Call Upload Popup
+    let popover = document.createElement("div");
+    popover.id = "uiavDefault";
+    popover.className = "popover";
 
+    let UIAlertView = document.createElement("div");
+    UIAlertView.className = "UIAlertView";
+    let title = document.createElement("div");
+    title.className = "title";
+    title.textContent = "Select File for Upload";
+
+    let message = document.createElement("div");
+    message.className = "message";
+    message.textContent = "";
+
+    let body = document.createElement("div");
+    body.className = "body";
+
+    let footer = document.createElement("div");
+    footer.className = "footer";
+    
+    let fileSelecterbtn = document.createElement("input");
+    fileSelecterbtn.type = "file";
+    fileSelecterbtn.class = "file-select"
+    fileSelecterbtn.id = "file-select";
+    fileSelecterbtn.hidden = true;
+
+    let btnSelectFile = document.createElement("button");
+    btnSelectFile.id = "file-select";
+    btnSelectFile.className = "button small wide smooth-scroll-middle";
+    btnSelectFile.textContent = "Select File";
+
+    let fileSelectedLabel = document.createElement("label");
+    fileSelectedLabel.id = "user-file-label";
+    fileSelectedLabel.textContent = "No file selected";
+
+    let btnSubmit = document.createElement("button");
+    btnSubmit.id = "file-submit";
+    btnSubmit.className = "button small wide smooth-scroll-middle";
+    btnSubmit.textContent = "Submit";
+    
+   btnSelectFile.addEventListener("click", e => {
+      //Select File **SET SIZE CONSTRAINTS
+      fileSelecterbtn.click();
+      $(fileSelecterbtn).change(function(e){
+        //Get File after change
+        file = e.target.files[0];
+        fileName = file.name;
+        console.log("FILE: " + fileName); 
+        //Display File Name
+        fileSelectedLabel.textContent = "Selected: " + fileName;
+        //Create Storage Ref
+        storageRef = firebase.storage().ref('main/' + file.name);
+        //Create Submit Button for UI
+        footer.appendChild(btnSubmit);
+      });
+    }); 
+
+    btnSubmit.addEventListener("click", e => {
+      //Upload File
+      var uploadTask = storageRef.put(file);
+      // Register three observers:
+      // 1. 'state_changed' observer, called any time the state changes
+      // 2. Error observer, called on failure
+      // 3. Completion observer, called on successful completion
+      uploadTask.on('state_changed', function(snapshot){
+        // Observe state change events such as progress, pause, and resume
+        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+        switch (snapshot.state) {
+          case firebase.storage.TaskState.PAUSED: // or 'paused'
+            console.log('Upload is paused');
+            break;
+          case firebase.storage.TaskState.RUNNING: // or 'running'
+            console.log('Upload is running');
+            break;
+        }
+      }, function(error) {
+        // Handle unsuccessful uploads
+      }, function() {
+        // Handle successful uploads on complete
+        userFileLabel.textContent = fileName + ": upload complete";
+        // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+        uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+          console.log('File available at', downloadURL);
+        });
+      });
+      popover.remove();
+    });
+
+    let btnCancel = document.createElement("button");
+    btnCancel.id = "btnCancelAlertView";
+    btnCancel.className = "button small wide smooth-scroll-middle";
+    btnCancel.textContent = "Cancel";
+    btnCancel.addEventListener("click", e => {
+      popover.remove();
+    });
+
+    footer.appendChild(btnCancel);
+    footer.appendChild(btnSelectFile);
+    footer.appendChild(fileSelectedLabel);
+
+    UIAlertView.appendChild(title);
+    UIAlertView.appendChild(message);
+    UIAlertView.appendChild(body);
+    UIAlertView.appendChild(footer);
+
+    popover.appendChild(UIAlertView);
+
+    document.querySelector(".page-main").appendChild(popover);
+});
+/*
 //Retrieving List
 // Create a reference under which you want to list
 // Find all the prefixes and items.
@@ -193,3 +307,4 @@ window.onload = storageRef.listAll().then(function(res) {
 }).catch(function(error) {
   // Uh-oh, an error occurred!
 });
+*/
